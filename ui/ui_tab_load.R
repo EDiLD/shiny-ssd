@@ -28,12 +28,12 @@ tabPanel(
                    ',')
       
       
-      # # use example dataset
-      # , selectInput('sample_data',
-      #             'Choose a dataset',
-      #             c(
-      #               'Selenium' = 'selenium',
-      #               'None' = 'none'))
+      # use example dataset
+      , selectInput('sample_data',
+                  'Choose a dataset',
+                  c(
+                    'Chlorpyrifos' = 'chlorpyrifos',
+                    'None' = 'none'))
       
 
     ),

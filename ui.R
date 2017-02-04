@@ -9,5 +9,7 @@ tagList(
     
     # tabs
     , source(file.path('ui/ui_tab_load.R'), local = TRUE)$value
+    , source(file.path('ui/ui_tab_settings.R'), local = TRUE)$value
+    , source(file.path('ui/ui_tab_results.R'), local = TRUE)$value
   )
 )

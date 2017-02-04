@@ -1,7 +1,6 @@
 get_data <- reactive({
   file <- input$upload_data
-  # example <- input$sample_data
-  example = 'none'
+  example <- input$sample_data
   
   if (is.null(file) & example == 'none') {
     return(NULL)
@@ -13,10 +12,10 @@ get_data <- reactive({
                    sep = input$sep)
   } 
   
-  # if ( example != 'none') {
-  #   df <- switch(example, 
-  #                selenium = selenium)
-  # }
+  if (example != 'none') {
+    df <- switch(example,
+                 chlorpyrifos = readRDS('data/chlorpyrifos.rds'))
+  }
   df
   })
 
