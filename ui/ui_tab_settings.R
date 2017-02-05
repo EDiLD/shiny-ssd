@@ -8,10 +8,12 @@ tabPanel(
     sidebarPanel(
       uiOutput('y'),
       uiOutput('species'),
-      uiOutput('group')
+      uiOutput('group'),
+      checkboxInput('log_x', 'Logarithmic x-axis?', value = TRUE)
     ),
     
     mainPanel(
+      tableOutput('head_data'),
       plotOutput('plot_settings')
     )
   )

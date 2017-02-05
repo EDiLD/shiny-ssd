@@ -41,6 +41,7 @@ get_cdata <- reactive({
 })
 
 
+
 # Plot output -------------------------------------------------------------
 
 
@@ -55,10 +56,13 @@ output$plot_settings <- renderPlot({
   nobs <- nrow(df)
   df_sort <- df[order(df[[input$y]]), ]
   half <- ceiling(nobs / 2)
+  if (!input$log_x)
+    half <- nobs - 1
+  lab_right <- df_sort[1:half, ]
+  lab_left <- df_sort[(half + 1):nobs, ]
   
   p <- ggplot() +
     theme_bw() +
-    scale_x_log10() +
     labs(x  = 'Concentration', y = 'Potentially Affected Fraction')  +
     theme(legend.position = 'bottom')
   
@@ -68,16 +72,27 @@ output$plot_settings <- renderPlot({
   p <- p + 
     geom_point(data = df, aes_string(x = input$y, y = 'frac')) +
     # lowest 35 to the right
-    geom_text(data = df_sort[1:half, ], 
+    geom_text(data = lab_right, 
               aes_string(x = max(df[[input$y]]), 
                          y = 'frac', 
                          label = input$species), 
-              hjust = 1, size = 4, show.legend = FALSE) +
+              hjust = 1, 
+              show.legend = FALSE) +
     # highest 35 to the left
-    geom_text(data = df_sort[(half + 1):nobs, ], 
+    geom_text(data = lab_left, 
               aes_string(x = min(df[[input$y]]), 
                          y = 'frac', 
                          label = input$species), 
-              hjust = 0, size = 4, show.legend = FALSE) 
+              hjust = 0, 
+              show.legend = FALSE) 
+  
+  if (input$log_x) {
+    p <- p + scale_x_log10()
+  }
   p
 })
+
+output$head_data <- renderTable({
+  df <- get_data()
+  head(df, n = 3)
+  }, digits = 3)

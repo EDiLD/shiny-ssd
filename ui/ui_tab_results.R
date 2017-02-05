@@ -15,7 +15,7 @@ tabPanel(
                 '5, 10, 50'),
       h3("Bootstrap"),
       numericInput("nboot", 
-                   label = "No. Bootstraps", 
+                   label = "No. Bootstraps (<1000)", 
                    value = 100,
                    min = 100, 
                    max = 1000,

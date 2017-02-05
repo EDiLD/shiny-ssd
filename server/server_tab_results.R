@@ -19,9 +19,15 @@ hcxs <- reactive({
 # bootstrap
 boots <- reactive({
   fit <- fit()
+  nboot <- input$nboot
+  
+  if (nboot > 1000) {
+    nboot <- 1000
+  }
+  
   boots <- bootdist(fit, 
                     bootmethod = input$boot_method, 
-                    niter = input$nboot)
+                    niter = nboot)
   boots
 })
 
@@ -103,15 +109,23 @@ output$plot_model <- renderPlot({
   nobs <- nrow(df)
   df_sort <- df[order(df[[input$y]]), ]
   half <- ceiling(nobs / 2)
+  if (!input$log_x)
+    half <- nobs - 1
+  lab_right <- df_sort[1:half, ]
+  lab_left <- df_sort[(half + 1):nobs, ]
+  
+  
   
   pdat <- pdat()
   bootdat <- bootdat()
   
   p <- ggplot() +
     theme_bw() +
-    scale_x_log10() +
     labs(x  = 'Concentration', y = 'Potentially Affected Fraction')  +
     theme(legend.position = 'bottom')
+  
+  if (input$log_x)
+    p <- p + scale_x_log10()
   
   if (input$plot_samps)
     p <- p + geom_line(data = bootdat,
@@ -126,19 +140,19 @@ output$plot_model <- renderPlot({
                             y = 'frac', 
                             col = input$group)) +
       # lowest 35 to the right
-      geom_text(data = df_sort[1:half, ], 
+      geom_text(data = lab_right, 
                 aes_string(x = max(df[[input$y]]), 
                            y = 'frac', 
-                           label = input$species,
-                           col = input$group), 
-                hjust = 1, size = 4, show.legend = FALSE) +
+                           label = input$species), 
+                hjust = 1, 
+                show.legend = FALSE) +
       # highest 35 to the left
-      geom_text(data = df_sort[(half + 1):nobs, ], 
+      geom_text(data = lab_left, 
                 aes_string(x = min(df[[input$y]]), 
                            y = 'frac', 
-                           label = input$species,
-                           col = input$group), 
-                hjust = 0, size = 4, show.legend = FALSE) 
+                           label = input$species), 
+                hjust = 0, 
+                show.legend = FALSE) 
   } else {
     p <- p + 
       geom_point(data = df,
@@ -148,13 +162,15 @@ output$plot_model <- renderPlot({
                 aes_string(x = max(df[[input$y]]), 
                            y = 'frac', 
                            label = input$species), 
-                hjust = 1, size = 4, show.legend = FALSE) +
+                hjust = 1, 
+                show.legend = FALSE) +
       # highest 35 to the left
       geom_text(data = df_sort[(half + 1):nobs, ], 
                 aes_string(x = min(df[[input$y]]), 
                            y = 'frac', 
                            label = input$species), 
-                hjust = 0, size = 4, show.legend = FALSE) 
+                hjust = 0, 
+                show.legend = FALSE) 
   }
   
   p <- p + 
