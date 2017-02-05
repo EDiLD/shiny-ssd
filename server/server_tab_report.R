@@ -7,10 +7,18 @@ output$downloadReport <- downloadHandler(
   
   content = function(file) {
     # give data
-    raw_data = get_data()
-    agg_data = get_cdata()
+    df_raw <- get_data()
+    df <- get_cdata()
+    input <- input
+    hcx <- hcx()
+    hcxs <- hcxs()
+    cis <- cis()
+    pdat <- pdat()
+    bootdat <- bootdat()
     
+    # setup
     src <- normalizePath('report.Rmd')
+    # temporary folder
     owd <- setwd(tempdir())
     on.exit(setwd(owd))
     file.copy(src, 'report.Rmd', overwrite = TRUE)
