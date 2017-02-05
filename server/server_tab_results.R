@@ -31,12 +31,21 @@ cis <- reactive({
   cis
 })
 
-
-pdat <- reactive({
+newxs <- reactive({
+  df <- get_cdata()
+  
   # predict new distributions on a grid of 1000
   newxs <- 10^(seq(log10(min(df[[input$y]])),
                    log10(max(df[[input$y]])),
                    length.out = 1000))
+  
+  newxs
+})
+
+pdat <- reactive({
+
+  newxs <- newxs()
+  
   # bootstraps
   pp <- apply(boots()$estim, 1,
               switch(input$model,
@@ -68,9 +77,8 @@ pdat <- reactive({
 
 bootdat <- reactive({
   # predict new distributions on a grid of 1000
-  newxs <- 10^(seq(log10(min(df[[input$y]])),
-                   log10(max(df[[input$y]])),
-                   length.out = 1000))
+  newxs <- newxs()
+  
   # use samples to get distribution
   pp <- apply(boots()$estim, 1,
               switch(input$model,
