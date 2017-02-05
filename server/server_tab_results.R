@@ -163,3 +163,17 @@ output$plot_model <- renderPlot({
     geom_line(data = pdat, aes(x = newxs, y = upr), linetype = 'dashed') 
   p
 })
+
+
+output$table_hcx <- renderTable({
+  est <- t(hcxs()$quantiles)
+  cis <- t(cis()$quantCI)
+  out <- data.frame(HC = hcx(),
+             Estimate = est,
+             Lower = cis[ , 1],
+             Upper = cis[ , 2])
+  rownames(out) <- NULL
+  # out <- round_df(out, digits = 4)
+  out
+  },
+  digits = 3)

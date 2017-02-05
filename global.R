@@ -20,3 +20,15 @@ geomean = function(x, na.rm = TRUE){
   # http://stackoverflow.com/questions/2602583/geometric-mean-is-there-a-built-in
   exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))
 }
+
+
+
+# input <- NULL
+# input$sample_data <- 'chlorpyrifos'
+# input$y <- 'lc50'
+# input$species <- 'species'
+# input$hcx <- '10, 50'
+# input$model <- 'lnorm'
+# hcx <- function() numextractall(input$hcx) / 100
+# input$boot_method <- 'para'
+# input$nboot <- 100

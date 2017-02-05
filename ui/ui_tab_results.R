@@ -30,7 +30,10 @@ tabPanel(
     mainPanel(
       tabsetPanel(
         tabPanel('Plot',
-                 plotOutput('plot_model')),
+                 plotOutput('plot_model'),
+                 h3('Estimated hazardous concentrations'), 
+                 tableOutput('table_hcx')
+                 ),
         tabPanel('Model Diagnostics'),
         tabPanel('Model Details')
         )

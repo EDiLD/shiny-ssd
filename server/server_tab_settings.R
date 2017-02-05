@@ -1,12 +1,12 @@
 # UI Elements -------------------------------------------------------------
 output$y = renderUI({
   vars <- get_vars()
-  selectInput('y', 'ECx', vars)
+  selectInput('y', 'ECx', vars, selected = vars[2])
 })
 
 output$species = renderUI({
   vars <- get_vars()
-  selectInput('species', 'Species', vars)
+  selectInput('species', 'Species', vars, selected = 1)
 })
 
 output$group = renderUI({
@@ -34,10 +34,10 @@ get_cdata <- reactive({
   }
    
   # aggregate per species using log-mean
-  df_agg <- aggregate(df[[input$y]], group, FUN = geomean)
-  names(df_agg) <- nams
+  df <- aggregate(df[[input$y]], group, FUN = geomean)
+  names(df) <- nams
   
-  df_agg
+  df
 })
 
 
