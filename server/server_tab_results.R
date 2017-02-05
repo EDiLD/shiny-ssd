@@ -188,6 +188,7 @@ output$table_hcx <- renderTable({
              Estimate = est,
              Lower = cis[ , 1],
              Upper = cis[ , 2])
+  colnames(out) <- c('HC', 'Estimate', 'LowerCI', 'UpperCI')
   rownames(out) <- NULL
   # out <- round_df(out, digits = 4)
   out

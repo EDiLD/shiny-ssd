@@ -6,7 +6,7 @@ output$downloadReport <- downloadHandler(
   },
   
   content = function(file) {
-    # give data
+    # data for report
     df_raw <- get_data()
     df <- get_cdata()
     input <- input
@@ -16,12 +16,12 @@ output$downloadReport <- downloadHandler(
     pdat <- pdat()
     bootdat <- bootdat()
     
-    # setup
-    src <- normalizePath('report.Rmd')
-    # temporary folder
-    owd <- setwd(tempdir())
-    on.exit(setwd(owd))
-    file.copy(src, 'report.Rmd', overwrite = TRUE)
+    # # setup
+    # src <- normalizePath('report.Rmd')
+    # # temporary folder
+    # owd <- setwd(tempdir())
+    # on.exit(setwd(owd))
+    # file.copy(src, 'report.Rmd', overwrite = TRUE)
     
     library(rmarkdown)
     out <- render('report.Rmd', switch(
