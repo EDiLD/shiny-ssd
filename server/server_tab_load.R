@@ -16,6 +16,7 @@ get_data <- reactive({
     df <- switch(example,
                  chlorpyrifos = readRDS('data/chlorpyrifos.rds'))
   }
+  
   df
   })
 
@@ -23,9 +24,11 @@ get_data <- reactive({
 # extract column names
 get_vars <- reactive({
   df <- get_data()
+  
   if (is.null(df)) {
     return(NULL)
   }
+  
   vars <- names(df)
   names(vars) <- vars
   return(vars)

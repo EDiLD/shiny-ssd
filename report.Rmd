@@ -1,0 +1,21 @@
+Raw data:
+
+```{r}
+kable(raw_data)
+```
+
+
+Aggregated data:
+
+```{r}
+kable(agg_data)
+```
+
+
+Plot data:
+
+
+Model:
+
+
+Plot data + model: 

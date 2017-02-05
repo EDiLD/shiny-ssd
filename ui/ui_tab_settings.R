@@ -7,8 +7,10 @@ tabPanel(
   sidebarLayout(
     sidebarPanel(
       uiOutput('y'),
-      uiOutput('species')
+      uiOutput('species'),
+      uiOutput('group')
     ),
+    
     mainPanel(
       plotOutput('plot_settings')
     )
