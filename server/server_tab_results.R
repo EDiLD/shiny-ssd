@@ -48,6 +48,11 @@ newxs <- reactive({
   newxs
 })
 
+# summary <- reactive({
+#   summary(fit)
+#   plot(fit)
+# })
+
 pdat <- reactive({
 
   newxs <- newxs()
@@ -101,8 +106,7 @@ bootdat <- reactive({
   bootdat
 })
 
-
-output$plot_model <- renderPlot({
+results_plot <- reactive({
   df <- get_cdata()
   df <- df[order(df[[input$y]]), ]
   df$frac <- ppoints(df[[input$y]], 0.5)
@@ -120,7 +124,7 @@ output$plot_model <- renderPlot({
   bootdat <- bootdat()
   
   p <- ggplot() +
-    theme_bw() +
+    theme_edi() +
     labs(x  = 'Concentration', y = 'Potentially Affected Fraction')  +
     theme(legend.position = 'bottom')
   
@@ -180,17 +184,40 @@ output$plot_model <- renderPlot({
   p
 })
 
+output$plot_model <- renderPlot({
+ print(results_plot())
+})
 
-output$table_hcx <- renderTable({
+output$download_plot_results <- downloadHandler(
+  filename = "ssd_results_plot.png",
+  content = function(file) {
+    ggsave(file, results_plot(), scale = 1.4)
+  }) 
+
+
+
+
+results_table <- reactive({
+  req(input$y)
+  
   est <- t(hcxs()$quantiles)
   cis <- t(cis()$quantCI)
   out <- data.frame(HC = hcx(),
-             Estimate = est,
-             Lower = cis[ , 1],
-             Upper = cis[ , 2])
+                    Estimate = est,
+                    Lower = cis[ , 1],
+                    Upper = cis[ , 2])
   colnames(out) <- c('HC', 'Estimate', 'LowerCI', 'UpperCI')
   rownames(out) <- NULL
   # out <- round_df(out, digits = 4)
   out
+})
+output$table_hcx <- renderTable({
+  results_table()
   },
   digits = 3)
+
+output$download_table_hc <- downloadHandler(
+  filename = "ssd_results_table_hc.png",
+  content = function(file) {
+    write.csv(results_table(), file)
+  }) 

@@ -6,15 +6,18 @@ tabPanel(
   
   sidebarLayout(
     sidebarPanel(
+      h4('Specify variables'),
       uiOutput('y'),
       uiOutput('species'),
       uiOutput('group'),
+      br(),
+      h4('Other settings'),
       checkboxInput('log_x', 'Logarithmic x-axis?', value = TRUE)
     ),
     
     mainPanel(
-      tableOutput('head_data'),
-      plotOutput('plot_settings')
+      plotOutput('plot_settings'),
+      downloadButton('download_plot_settings', 'Download Plot')
     )
   )
 )

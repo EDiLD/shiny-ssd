@@ -5,7 +5,8 @@ tabPanel(
   icon = icon('play'),
   
   sidebarLayout(
-    sidebarPanel(      
+    sidebarPanel(   
+      h3("Model + HC"),
       selectInput("model",
                          label = "Distribution",
                          choices = list("Log-Normal" = 'lnorm',
@@ -13,7 +14,7 @@ tabPanel(
                          selected = 1),
       textInput('hcx', 'HCx (separated by comma): ',
                 '5, 10, 50'),
-      h3("Bootstrap"),
+      h3("Bootstrap CI"),
       numericInput("nboot", 
                    label = "No. Bootstraps (<1000)", 
                    value = 100,
@@ -29,12 +30,14 @@ tabPanel(
     ),
     mainPanel(
       tabsetPanel(
-        tabPanel('Plot',
+        tabPanel('Summary',
                  plotOutput('plot_model'),
-                 h3('Estimated hazardous concentrations'), 
-                 tableOutput('table_hcx')
+                 br(),
+                 h3('Estimated Hazardous Concentrations'), 
+                 tableOutput('table_hcx'),
+                 downloadButton('download_plot_results', 'Download Plot'),
+                 downloadButton('download_table_hc', 'Download Table')
                  ),
-        tabPanel('Model Diagnostics'),
         tabPanel('Model Details')
         )
     )

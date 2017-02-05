@@ -6,9 +6,9 @@ tabPanel(
   
   sidebarLayout(
     sidebarPanel(
-      radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
+      radioButtons('report_format', 'Download format', c('PDF', 'HTML', 'Word'),
                    inline = TRUE),
-      downloadButton('downloadReport')
+      downloadButton('report', 'Download Report')
     ),
     mainPanel(
     )

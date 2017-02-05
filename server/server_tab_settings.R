@@ -19,11 +19,8 @@ output$group = renderUI({
 
 # aggregate ---------------------------------------------------------------
 get_cdata <- reactive({
+  req(input$y)
   df <- get_data()
-  
-  # do nothing when not numeric
-  if (is.character(df[[input$y]]))
-    return(NULL)
   
   if (input$group == '__none__') {
     group <-  list(df[[input$species]])
@@ -43,9 +40,7 @@ get_cdata <- reactive({
 
 
 # Plot output -------------------------------------------------------------
-
-
-output$plot_settings <- renderPlot({
+settings_plot <- reactive({
   df <- get_cdata()
   
   if (is.null(df))
@@ -62,7 +57,7 @@ output$plot_settings <- renderPlot({
   lab_left <- df_sort[(half + 1):nobs, ]
   
   p <- ggplot() +
-    theme_bw() +
+    theme_edi() +
     labs(x  = 'Concentration', y = 'Potentially Affected Fraction')  +
     theme(legend.position = 'bottom')
   
@@ -92,7 +87,14 @@ output$plot_settings <- renderPlot({
   p
 })
 
-output$head_data <- renderTable({
-  df <- get_data()
-  head(df, n = 3)
-  }, digits = 3)
+
+output$plot_settings <- renderPlot({
+ print(settings_plot())
+})
+
+
+output$download_plot_settings <- downloadHandler(
+  filename = "ssd_settings_plot.png",
+  content = function(file) {
+    ggsave(file, settings_plot(), scale = 1.4)
+  })  

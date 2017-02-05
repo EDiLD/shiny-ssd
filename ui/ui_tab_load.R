@@ -12,7 +12,7 @@ tabPanel(
       # read table
       fileInput(
         inputId = 'upload_data',
-        label = 'File',
+        label = 'Upload File',
         multiple = FALSE,
         accept = c(
           'text/csv',
@@ -30,7 +30,7 @@ tabPanel(
       
       # use example dataset
       , selectInput('sample_data',
-                  'Choose a dataset',
+                  'Or use example dataset',
                   c(
                     'Chlorpyrifos' = 'chlorpyrifos',
                     'None' = 'none'))
