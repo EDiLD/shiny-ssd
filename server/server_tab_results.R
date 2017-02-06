@@ -171,13 +171,12 @@ results_table <- reactive({
   
   est <- t(hcxs()$quantiles)
   cis <- cis()
-  out <- data.frame(HC = hcx(),
+  out <- data.frame(HC = as.integer(100 * hcx()),
                     Estimate = est,
                     Lower = cis[ , 1],
                     Upper = cis[ , 2])
   colnames(out) <- c('HC', 'Estimate', 'LowerCI', 'UpperCI')
   rownames(out) <- NULL
-  # out <- round_df(out, digits = 4)
   out
 })
 output$table_hcx <- renderTable({
