@@ -114,18 +114,16 @@ results_plot <- reactive({
   p <- ggplot() +
     theme_edi() +
     labs(x  = 'Concentration', y = 'Potentially Affected Fraction')  +
-    theme(legend.position = 'bottom')
-  
+    theme(legend.position = 'bottom') +
+    geom_point(data = df,
+               aes_string(x = input$y, y = 'frac'))
+  # log x-axis?
   if (input$log_x)
     p <- p + scale_x_log10()
   
-  # add labels & points
-  if (input$group != '__none__') {
-    p <- p + 
-      geom_point(data = df,
-                 aes_string(x = input$y, 
-                            y = 'frac', 
-                            col = input$group)) +
+  # add species labels
+  if (input$label_spec) {
+    p <- p +
       geom_text(data = lab_right, 
                 aes_string(x = max(df[[input$y]]), 
                            y = 'frac', 
@@ -133,22 +131,6 @@ results_plot <- reactive({
                 hjust = 1, 
                 show.legend = FALSE) +
       geom_text(data = lab_left, 
-                aes_string(x = min(df[[input$y]]), 
-                           y = 'frac', 
-                           label = input$species), 
-                hjust = 0, 
-                show.legend = FALSE) 
-  } else {
-    p <- p + 
-      geom_point(data = df,
-                 aes_string(x = input$y, y = 'frac')) +
-      geom_text(data = df_sort[1:half, ], 
-                aes_string(x = max(df[[input$y]]), 
-                           y = 'frac', 
-                           label = input$species), 
-                hjust = 1, 
-                show.legend = FALSE) +
-      geom_text(data = df_sort[(half + 1):nobs, ], 
                 aes_string(x = min(df[[input$y]]), 
                            y = 'frac', 
                            label = input$species), 

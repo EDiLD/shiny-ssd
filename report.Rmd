@@ -7,32 +7,36 @@ opts_chunk$set(echo = FALSE)
 ```
 
 
-## Aggregated data:
+## Fitted SSD Model
 
-```{r agg_data}
-kable(get_cdata(), digits = 4, row.names = FALSE)
-```
-
-```{r settings_plot}
-print(settings_plot())
+```{r model_plot}
+print(results_plot())
 ```
 
 
 
-## Fitted SSD Model:
 
-* Distribution: `r input$model`
-* Fitting method: `r fit()$method`
-* Bootstrap method: `r input$boot_method`
-* No. boot samples: `r input$nboot`
 
 ```{r model_table}
 kable(results_table(), digits = 4)
 ```
 
 
-```{r model_plot}
-print(results_plot())
+### Goodness-of-Fit measures
+```{r gof_table}
+kable(gof_r(), digits = 4)
+```
+
+
+### Method details
+```{r details_table}
+kable(details_r(), digits = 4)
+```
+
+
+### Diagnostics
+```{r diag_plot}
+plot(fit())
 ```
 
 

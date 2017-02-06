@@ -9,10 +9,10 @@ tabPanel(
       h4('Specify variables'),
       uiOutput('y'),
       uiOutput('species'),
-      uiOutput('group'),
       br(),
-      h4('Other settings'),
-      checkboxInput('log_x', 'Logarithmic x-axis?', value = TRUE)
+      h4('Plot settings'),
+      checkboxInput('log_x', 'Logarithmic x-axis?', value = TRUE),
+      checkboxInput('label_spec', 'Label species?', value = TRUE)
     ),
     
     mainPanel(

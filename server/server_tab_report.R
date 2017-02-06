@@ -9,7 +9,7 @@ output$report <- downloadHandler(
     file.copy("report.Rmd", tempReport, overwrite = TRUE)
     
     render(tempReport, 
-           output_format = switch(input$format,
+           output_format = switch(input$report_format,
                                   PDF = pdf_document(), 
                                   HTML = html_document(), 
                                   Word = word_document()

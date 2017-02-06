@@ -9,30 +9,14 @@ output$species = renderUI({
   selectInput('species', 'Species', vars, selected = 1)
 })
 
-output$group = renderUI({
-  vars <- get_vars()
-  vars <- c(None  = '__none__', vars)
-  selectInput('group', 'Color group', vars)
-})
-
-
 
 # aggregate ---------------------------------------------------------------
 get_cdata <- reactive({
-  req(input$y)
   df <- get_data()
-  
-  if (input$group == '__none__') {
-    group <-  list(df[[input$species]])
-    nams <- c(input$species, input$y)
-  } else {
-    group <- list(df[[input$species]],  df[[input$group]])
-    nams <- c(input$species, input$group, input$y)
-  }
    
   # aggregate per species using log-mean
-  df <- aggregate(df[[input$y]], group, FUN = geomean)
-  names(df) <- nams
+  df <- aggregate(df[[input$y]], list(df[[input$species]]), FUN = geomean)
+  names(df) <- c(input$species, input$y)
   
   df
 })
@@ -59,31 +43,30 @@ settings_plot <- reactive({
   p <- ggplot() +
     theme_edi() +
     labs(x  = 'Concentration', y = 'Potentially Affected Fraction')  +
-    theme(legend.position = 'bottom')
+    theme(legend.position = 'bottom') +
+    geom_point(data = df, aes_string(x = input$y, y = 'frac'))
   
-  if (input$group != '__none__')
-    p <- p + aes_string(col = input$group)
-  
-  p <- p + 
-    geom_point(data = df, aes_string(x = input$y, y = 'frac')) +
-    # lowest 35 to the right
-    geom_text(data = lab_right, 
-              aes_string(x = max(df[[input$y]]), 
-                         y = 'frac', 
-                         label = input$species), 
-              hjust = 1, 
-              show.legend = FALSE) +
-    # highest 35 to the left
-    geom_text(data = lab_left, 
-              aes_string(x = min(df[[input$y]]), 
-                         y = 'frac', 
-                         label = input$species), 
-              hjust = 0, 
-              show.legend = FALSE) 
-  
-  if (input$log_x) {
+  # log x-axis?
+  if (input$log_x)
     p <- p + scale_x_log10()
+  
+  # add species labels
+  if (input$label_spec) {
+    p <- p +
+      geom_text(data = lab_right, 
+                aes_string(x = max(df[[input$y]]), 
+                           y = 'frac', 
+                           label = input$species), 
+                hjust = 1, 
+                show.legend = FALSE) +
+      geom_text(data = lab_left, 
+                aes_string(x = min(df[[input$y]]), 
+                           y = 'frac', 
+                           label = input$species), 
+                hjust = 0, 
+                show.legend = FALSE) 
   }
+  
   p
 })
 
