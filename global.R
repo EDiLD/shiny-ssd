@@ -23,3 +23,4 @@ library(rmarkdown)
 # hcx <- function() numextractall(input$hcx) / 100
 # input$boot_method <- 'para'
 # input$nboot <- 100
+# input$log_x <- TRUE

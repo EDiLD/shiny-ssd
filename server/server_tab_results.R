@@ -2,6 +2,7 @@ hcx <- reactive({
   numextractall(input$hcx) / 100
 })
 
+
 # fit distribution
 fit <- reactive({
   df <- get_data()
@@ -9,12 +10,14 @@ fit <- reactive({
   fit
 })
 
+
 # calc hcx
 hcxs <- reactive({
   fit <- fit()
   hcxs <- quantile(fit, probs = hcx())
   hcxs
 })
+
 
 # bootstrap
 boots <- reactive({
@@ -31,13 +34,15 @@ boots <- reactive({
   boots
 })
 
+
 # confidence interval from bootstreap
 cis <- reactive({
   cis <- quantile(boots(), probs = hcx())
-  cis
+  t(cis$quantCI)
 })
 
-newxs <- reactive({
+
+get_newxs <- reactive({
   df <- get_cdata()
   
   # predict new distributions on a grid of 1000
@@ -48,16 +53,25 @@ newxs <- reactive({
   newxs
 })
 
-# summary <- reactive({
-#   summary(fit)
-#   plot(fit)
-# })
 
-pdat <- reactive({
+# calc mean prediction from fit
+p_fit <- reactive({
+  newxs <- get_newxs()
+  fit <- fit()
+  p_fit <- data.frame(newxs, 
+                      py = switch(input$model, 
+                                  lnorm = plnorm(newxs,
+                                                 meanlog = fit$estimate[1],
+                                                 sdlog = fit$estimate[2]),
+                                  llogis = pllogis(newxs,
+                                                   shape = fit$estimate[1],
+                                                   scale = fit$estimate[2])))
+  p_fit
+})
 
-  newxs <- newxs()
-  
-  # bootstraps
+pp <- reactive({
+  newxs <- get_newxs()
+  # bootstrap samples
   pp <- apply(boots()$estim, 1,
               switch(input$model,
                      lnorm = function(x) plnorm(newxs, 
@@ -65,51 +79,29 @@ pdat <- reactive({
                      llogis = function(x) pllogis(newxs, 
                                                   shape = x[1], scale = x[2]))
   )
-  
-  # use actual fit for mean (not boostrap mean)
-  fit <- fit()
-  pdat <- data.frame(newxs, py = switch(input$model,
-                                        lnorm = plnorm(newxs,
-                                                       meanlog = fit$estimate[1],
-                                                       sdlog = fit$estimate[2]),
-                                        llogis = pllogis(newxs,
-                                                         shape = fit$estimate[1],
-                                                         scale = fit$estimate[2])))
-  
+  pp
+})
+
+# calc pointwise ci
+p_ci <- reactive({
+  pp <- pp()
   # get CI from bootstraps
   cis <- apply(pp, 1, quantile, c(0.025, 0.975))
-  rownames(cis) <- c('lwr' ,'upr')
-
-  # combine mean (from fit) + CI (from bootstrap)
-  pdat <- cbind(pdat, t(cis))
-  pdat
+  cis <- data.frame(t(cis))
+  names(cis) <- c('lwr' ,'upr')
+  cis
 })
 
 
-bootdat <- reactive({
-  # predict new distributions on a grid of 1000
-  newxs <- newxs()
-  
-  # use samples to get distribution
-  pp <- apply(boots()$estim, 1,
-              switch(input$model,
-                     lnorm = function(x) plnorm(newxs, 
-                                                meanlog = x[1], sdlog = x[2]),
-                     llogis = function(x) pllogis(newxs, 
-                                                  shape = x[1], scale = x[2]))
-  )
-  bootdat <- data.frame(pp)
-  
-  # add x-values
-  bootdat$newxs <- newxs
-  bootdat <- gather(bootdat, key = 'variable', value = 'value', -newxs)
-  bootdat
-})
 
 results_plot <- reactive({
+  
+  # prepare data
   df <- get_cdata()
   df <- df[order(df[[input$y]]), ]
   df$frac <- ppoints(df[[input$y]], 0.5)
+  
+  # calc label positions
   nobs <- nrow(df)
   df_sort <- df[order(df[[input$y]]), ]
   half <- ceiling(nobs / 2)
@@ -117,12 +109,8 @@ results_plot <- reactive({
     half <- nobs - 1
   lab_right <- df_sort[1:half, ]
   lab_left <- df_sort[(half + 1):nobs, ]
-  
-  
-  
-  pdat <- pdat()
-  bootdat <- bootdat()
-  
+
+  # base plot
   p <- ggplot() +
     theme_edi() +
     labs(x  = 'Concentration', y = 'Potentially Affected Fraction')  +
@@ -131,26 +119,19 @@ results_plot <- reactive({
   if (input$log_x)
     p <- p + scale_x_log10()
   
-  if (input$plot_samps)
-    p <- p + geom_line(data = bootdat,
-                       aes(x = newxs, y = value, group = variable),
-                       col = 'steelblue', 
-                       alpha = 10 / input$nboot)
-  
+  # add labels & points
   if (input$group != '__none__') {
     p <- p + 
       geom_point(data = df,
                  aes_string(x = input$y, 
                             y = 'frac', 
                             col = input$group)) +
-      # lowest 35 to the right
       geom_text(data = lab_right, 
                 aes_string(x = max(df[[input$y]]), 
                            y = 'frac', 
                            label = input$species), 
                 hjust = 1, 
                 show.legend = FALSE) +
-      # highest 35 to the left
       geom_text(data = lab_left, 
                 aes_string(x = min(df[[input$y]]), 
                            y = 'frac', 
@@ -161,14 +142,12 @@ results_plot <- reactive({
     p <- p + 
       geom_point(data = df,
                  aes_string(x = input$y, y = 'frac')) +
-      # lowest 35 to the right
       geom_text(data = df_sort[1:half, ], 
                 aes_string(x = max(df[[input$y]]), 
                            y = 'frac', 
                            label = input$species), 
                 hjust = 1, 
                 show.legend = FALSE) +
-      # highest 35 to the left
       geom_text(data = df_sort[(half + 1):nobs, ], 
                 aes_string(x = min(df[[input$y]]), 
                            y = 'frac', 
@@ -177,17 +156,26 @@ results_plot <- reactive({
                 show.legend = FALSE) 
   }
   
+  # mean fit
+  pf <- p_fit()
   p <- p + 
-    geom_line(data = pdat, aes(x = newxs, y = py), col = 'red') +
-    geom_line(data = pdat, aes(x = newxs, y = lwr), linetype = 'dashed') +
-    geom_line(data = pdat, aes(x = newxs, y = upr), linetype = 'dashed') 
+    geom_line(data = pf, aes(x = newxs, y = py))
+  
+  # add ci bands
+  pci <- p_ci()
+  p <- p +
+    geom_line(data = pci, aes(x = newxs, y = lwr), linetype = 'dashed') +
+    geom_line(data = pci, aes(x = newxs, y = upr), linetype = 'dashed') 
+  
   p
 })
+
+
+
 
 output$plot_model <- renderPlot({
  print(results_plot())
 })
-
 output$download_plot_results <- downloadHandler(
   filename = "ssd_results_plot.png",
   content = function(file) {
@@ -196,12 +184,11 @@ output$download_plot_results <- downloadHandler(
 
 
 
-
 results_table <- reactive({
   req(input$y)
   
   est <- t(hcxs()$quantiles)
-  cis <- t(cis()$quantCI)
+  cis <- cis()
   out <- data.frame(HC = hcx(),
                     Estimate = est,
                     Lower = cis[ , 1],
@@ -216,8 +203,66 @@ output$table_hcx <- renderTable({
   },
   digits = 3)
 
+
 output$download_table_hc <- downloadHandler(
   filename = "ssd_results_table_hc.png",
   content = function(file) {
     write.csv(results_table(), file)
+  }) 
+
+output$table_hcx2 <- renderTable({
+  results_table()
+  },
+  digits = 3)
+output$download_estimates <- downloadHandler(
+  filename = "ssd_estimates.png",
+  content = function(file) {
+    write.csv(results_table(), file)
+  }) 
+
+
+gof_r <- reactive({
+  f <- fit()
+  data.frame(logLik = f$loglik,
+             AIC = f$aic,
+             BIC = f$bic
+  )
+})
+output$gof <- renderTable({
+  gof_r()
+})
+output$download_gof <- downloadHandler(
+  filename = "ssd_gof.png",
+  content = function(file) {
+    write.csv(gof_r(), file)
+  }) 
+
+
+details_r <- reactive({
+  f <- fit()
+  data.frame(Fit_Method = f$method,
+             Distribution = f$distname,
+             Boot_Method = input$boot_method,
+             Boot_n = input$nboot
+  )
+})
+output$details <- renderTable({
+  details_r()
+})
+output$download_details <- downloadHandler(
+  filename = "ssd_details.png",
+  content = function(file) {
+    write.csv(details_r(), file)
+  }) 
+
+
+output$plot_diag <- renderPlot({
+  plot(fit())
+})
+output$download_diag <- downloadHandler(
+  filename = "ssd_diag.png",
+  content = function(file) {
+    png(file)
+    plot(fit())
+    dev.off()
   }) 

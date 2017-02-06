@@ -22,6 +22,7 @@ print(settings_plot())
 ## Fitted SSD Model:
 
 * Distribution: `r input$model`
+* Fitting method: `r fit()$method`
 * Bootstrap method: `r input$boot_method`
 * No. boot samples: `r input$nboot`
 

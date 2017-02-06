@@ -25,8 +25,7 @@ tabPanel(
                   label = "Bootstrap method",
                   choices = list("Parametric" = 'param',
                                  "Non-Parametric" = 'nonparam'),
-                  selected = 1),
-      checkboxInput('plot_samps', 'Show bootstrap samples?', value = TRUE)
+                  selected = 1)
     ),
     mainPanel(
       tabsetPanel(
@@ -38,7 +37,20 @@ tabPanel(
                  downloadButton('download_plot_results', 'Download Plot'),
                  downloadButton('download_table_hc', 'Download Table')
                  ),
-        tabPanel('Model Details')
+        tabPanel('Model Details',
+                 h3('Estimates'),
+                 tableOutput('table_hcx2'),
+                 h3('Goodness-of-fit'),
+                 tableOutput('gof'),
+                 h3('Methods'),
+                 tableOutput('details'),
+                 h3('Diagnostics'),
+                 plotOutput('plot_diag'),
+                 downloadButton('download_estimates', 'Download Estimates Table'),
+                 downloadButton('download_gof', 'Download GOF Table'),
+                 downloadButton('download_methods', 'Download Methods Table'),
+                 downloadButton('download_diag', 'Download Plots')
+                 )
         )
     )
   )
