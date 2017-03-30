@@ -96,6 +96,8 @@ p_ci <- reactive({
 
 results_plot <- reactive({
   
+  newxs <- get_newxs()
+  
   # prepare data
   df <- get_cdata()
   df <- df[order(df[[input$y]]), ]
@@ -158,6 +160,7 @@ results_plot <- reactive({
 output$plot_model <- renderPlot({
  print(results_plot())
 })
+
 output$download_plot_results <- downloadHandler(
   filename = "ssd_results_plot.png",
   content = function(file) {
